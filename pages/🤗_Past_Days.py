@@ -10,23 +10,25 @@ import streamlit as st
 
 # Import from other files
 from databases.es_connector import store, exist_for_date
-from variables import DAYS
+from variables import DAYS, TODAY, AUTHORIZED_LATE_DAYS, NUM_MOMENTS, DEFAULT_LANG
 
 # Configure logger
 logging.basicConfig(format="\n%(asctime)s\n%(message)s", level=logging.INFO, force=True)
 
+# Configure Streamlit page and state
+st.set_page_config(page_title="Stay Positive", page_icon="🤗")
+
+
+# session_state variables
 if "error" not in st.session_state:
     st.session_state.error = ""
 
-# Render Streamlit page
-# st.title("Stay Positive 🤗")
-
 def _day(gap: int):
     if gap == 0:
-        return "Today"
-    return DAYS[(date.today() - timedelta(days = gap)).weekday()]
+        return TODAY[DEFAULT_LANG]
+    return DAYS[DEFAULT_LANG][(date.today() - timedelta(days = gap)).weekday()]
 
-days_opts = { _day(i) : i for i in range(3) }
+days_opts = { _day(i) : i for i in range(AUTHORIZED_LATE_DAYS + 1) }
 
 cols = st.columns(2)
 with cols[0]:
@@ -36,7 +38,7 @@ with cols[1]:
 
 st.markdown("---")
 
-moments = [st.text_input(label="Moment {}".format(str(i+1))) for i in range(3)]
+moments = [st.text_input(label="Moment {}".format(str(i+1))) for i in range(NUM_MOMENTS)]
 
 
 def store_moments(gap: int, moments: List[str]):
@@ -47,7 +49,7 @@ def store_moments(gap: int, moments: List[str]):
     
     st.session_state.error = ""
     if exist_for_date(-gap):
-        st.session_state.error = "Moments already stored for today"
+        st.session_state.error = "Moments already stored for that day"
         return
     
     with st.spinner('Storing moments...'):
