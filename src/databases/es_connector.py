@@ -3,7 +3,7 @@ from datetime import date, timedelta
 from typing import List
 
 _INDEX = "moments"
-es = Elasticsearch([{'host': 'localhost', 'port':9200, 'scheme':'http'}])
+es = Elasticsearch([{'host': 'elasticsearch', 'port':9200, 'scheme':'http'}])
 
 
 def store(moments: List[str], gap: int = 0, index: str = _INDEX):
